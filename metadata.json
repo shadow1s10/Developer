@@ -1,0 +1,6 @@
+{
+  "name": "Shadow Mail - بريد مؤقت آمن وسريع",
+  "description": "خدمة بريد إلكتروني مؤقت لحماية خصوصيتك ومنع الرسائل المزعجة. بريد مهمل فوري لاستقبال رسائل التفعيل ورموز OTP دون الكشف عن هويتك.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

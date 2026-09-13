@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Mail | Temp Mail</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Cairo', system-ui, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        .hero {
+            background: radial-gradient(ellipse at top right, #0f172a 0%, #1e293b 60%, #0f172a 100%);
+            color: #fff;
+            padding: 2.5rem 1rem 11rem;
+            text-align: center;
+        }
+        .hero h1 { font-size: 1.875rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.25rem; }
+        @media (min-width: 768px) { .hero h1 { font-size: 2.25rem; } }
+        .hero h1 span { color: #60a5fa; }
+        .hero p { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: #94a3b8; }
+
+        .card {
+            max-width: 28rem;
+            margin: 2rem auto 0;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 2.5rem;
+            padding: 1.75rem 1.5rem;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            color: #1e293b;
+        }
+        @media (min-width: 768px) { .card { padding: 2rem; } }
+
+        .timer-wrap {
+            position: relative; width: 6rem; height: 6rem;
+            margin: 0 auto 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .timer-wrap svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+        #timerDigits { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.05em; }
+
+        .email-box {
+            background: #f8fafc; border: 1px solid #f1f5f9;
+            border-radius: 1rem; padding: 1rem; margin-bottom: 1rem;
+        }
+        .email-box input {
+            width: 100%; background: transparent; border: none; outline: none;
+            text-align: center; font-weight: 700; font-size: 1rem;
+            color: #1e293b; font-family: inherit;
+        }
+
+        .btn {
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            width: 100%; border: none; cursor: pointer; font-family: inherit;
+            font-weight: 700; transition: all 0.1s ease; user-select: none;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-copy {
+            background: #2563eb; color: #fff; padding: 1rem; border-radius: 1rem;
+            font-size: 0.875rem; letter-spacing: 0.1em;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); margin-bottom: 0.75rem;
+        }
+        .btn-copy:active { background: #1d4ed8; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
+        .btn-copy.copied { background: #16a34a; }
+        .btn-row { display: flex; gap: 0.5rem; }
+        .btn-secondary {
+            flex: 1; background: #fff; border: 1px solid #e2e8f0; color: #475569;
+            padding: 0.625rem; border-radius: 0.75rem; font-size: 0.7rem;
+        }
+        .btn-secondary:active { background: #f1f5f9; }
+        .btn-danger {
+            flex: 1; background: #fff1f2; color: #f43f5e;
+            padding: 0.625rem; border-radius: 0.75rem; font-size: 0.7rem; border: none;
+        }
+        .btn-danger:active { background: #fee2e2; }
+
+        .status { font-size: 0.65rem; text-align: center; margin-top: 0.75rem; min-height: 1rem; color: #94a3b8; }
+        .status.error { color: #f43f5e; }
+
+        main { max-width: 42rem; margin: -5rem auto 0; padding: 0 1rem 4rem; }
+
+        .guide {
+            background: #2563eb; color: #fff; border-radius: 1.5rem;
+            padding: 1.25rem; margin-bottom: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+        .guide h3 { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .guide p { font-size: 0.7rem; opacity: 0.9; line-height: 1.6; text-align: right; }
+
+        .section {
+            background: #fff; border-radius: 2rem; padding: 1.5rem;
+            border: 1px solid #f8fafc; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            margin-bottom: 2rem;
+        }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+        .section-header h2 {
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            display: flex; align-items: center; gap: 0.5rem; color: #1e293b;
+        }
+        .section-header h2 i.blue { color: #3b82f6; }
+        .section-header h2 i.purple { color: #a855f7; }
+
+        .badge { background: #3b82f6; color: #fff; font-size: 0.6rem; padding: 0.1rem 0.4rem; border-radius: 999px; display: none; }
+        .badge.show { display: inline-block; }
+
+        .btn-refresh {
+            background: #eff6ff; color: #2563eb; border: none; font-size: 0.65rem; font-weight: 700;
+            padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer;
+            display: flex; align-items: center; gap: 0.35rem; font-family: inherit;
+        }
+        .btn-refresh:active { background: #dbeafe; }
+
+        .inbox { max-height: 400px; overflow-y: auto; min-height: 220px; scrollbar-width: thin; scrollbar-color: #cbd5e1 #f8fafc; }
+        .inbox::-webkit-scrollbar { width: 5px; }
+        .inbox::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 0; color: #e2e8f0; }
+        .empty i { font-size: 1.875rem; margin-bottom: 0.75rem; }
+        .empty p { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: #94a3b8; }
+
+        .mail-row {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem;
+            border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s;
+        }
+        .mail-row:hover { background: #f0f7ff; }
+        .mail-row:active { background: #e0efff; }
+
+        .avatar {
+            width: 2.5rem; height: 2.5rem; border-radius: 999px; background: #2563eb; color: #fff;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;
+        }
+        .mail-info { flex: 1; min-width: 0; text-align: right; }
+        .mail-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem; }
+        .mail-from { font-size: 0.8rem; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mail-time { font-size: 0.6rem; color: #94a3b8; flex-shrink: 0; margin-right: 0.5rem; }
+        .mail-subject { font-size: 0.7rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .history-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; border: 1px solid #f1f5f9; border-radius: 1rem; margin-bottom: 0.6rem;
+        }
+        .history-item.active { background: #eff6ff; border-color: #bfdbfe; }
+        .history-item .info { flex: 1; min-width: 0; text-align: right; }
+        .history-item .email { font-size: 0.75rem; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item .time { font-size: 0.6rem; color: #94a3b8; margin-top: 0.2rem; }
+        .history-actions { display: flex; gap: 0.4rem; align-items: center; }
+        .btn-restore {
+            background: #fff; border: 1px solid #e2e8f0; color: #2563eb;
+            font-size: 0.6rem; font-weight: 800; padding: 0.35rem 0.7rem; border-radius: 0.5rem;
+            cursor: pointer; font-family: inherit;
+        }
+        .btn-del { background: transparent; border: none; color: #f43f5e; cursor: pointer; padding: 0.25rem; font-size: 0.7rem; }
+        .active-label { font-size: 0.55rem; color: #2563eb; font-weight: 800; letter-spacing: 0.1em; }
+        .btn-clear {
+            background: none; border: none; color: #fb7185; font-size: 0.65rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; display: none;
+        }
+        .btn-clear.show { display: block; }
+
+        #modal {
+            display: none; position: fixed; inset: 0; z-index: 9999;
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px);
+            align-items: center; justify-content: center; padding: 12px;
+        }
+        #modal.open { display: flex; }
+        .modal-box {
+            background: #fff; border-radius: 2rem; width: 100%; max-width: 32rem;
+            max-height: 80vh; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
+        .modal-head {
+            padding: 1.5rem; border-bottom: 1px solid #f8fafc;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-shrink: 0;
+        }
+        .modal-head .left { min-width: 0; text-align: right; flex: 1; padding-left: 0.5rem; }
+        .modal-subject {
+            font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .modal-from { font-size: 0.65rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.1em; }
+        .modal-close {
+            background: #f8fafc; border: none; width: 2.5rem; height: 2.5rem; border-radius: 0.75rem;
+            color: #94a3b8; cursor: pointer; font-size: 1rem; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-body {
+            padding: 1.25rem; overflow-y: auto; font-size: 0.85rem; color: #475569;
+            line-height: 1.6; text-align: right; flex: 1; min-height: 0;
+        }
+        .otp-badge {
+            display: inline-block; background: #dbeafe; color: #1d4ed8;
+            font-weight: 800; font-size: 0.95rem; padding: 0.4rem 0.85rem;
+            border-radius: 0.5rem; margin-bottom: 1rem; letter-spacing: 0.12em;
+        }
+        #mailFrame {
+            width: 100%;
+            min-height: 280px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<header class="hero">
+    <h1>Shadow <span>Mail</span></h1>
+    <p>Instant & Private Inbox</p>
+
+    <div class="card">
+        <div class="timer-wrap">
+            <svg viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="62" fill="none" stroke="#f1f5f9" stroke-width="5"/>
+                <circle id="timerArc" cx="70" cy="70" r="62" fill="none" stroke="#3b82f6" stroke-width="6"
+                        stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="0"
+                        style="transition: stroke-dashoffset 1s linear;"/>
+            </svg>
+            <div id="timerDigits">05:00</div>
+        </div>
+
+        <div class="email-box">
+            <input type="text" id="emailAddr" readonly value="جاري التوليد...">
+        </div>
+
+        <button class="btn btn-copy" id="copyBtn" onclick="copyEmail()">
+            <i class="fas fa-copy"></i>
+            <span id="copyText">نسخ العنوان</span>
+        </button>
+
+        <div class="btn-row">
+            <button class="btn btn-secondary" onclick="generateNewEmail(true)">
+                <i class="fas fa-plus"></i> جديد
+            </button>
+            <button class="btn btn-danger" onclick="fullReset()">
+                <i class="fas fa-trash-alt"></i> إعادة
+            </button>
+        </div>
+
+        <p class="status" id="statusMsg"></p>
+    </div>
+</header>
+
+<main>
+    <div class="guide">
+        <h3><i class="fas fa-lightbulb"></i> دليل سريع</h3>
+        <p>
+            1. انسخ العنوان أعلاه واستخدمه في أي موقع.<br>
+            2. الرسائل تظهر تلقائياً أدناه كل بضع ثوانٍ.<br>
+            3. العنوان يتجدد كل 5 دقائق لحماية خصوصيتك.
+        </p>
+    </div>
+
+    <section class="section">
+        <div class="section-header">
+            <h2>
+                <i class="fas fa-inbox blue"></i> صندوق الوارد
+                <span class="badge" id="msgCount">0</span>
+            </h2>
+            <button class="btn-refresh" onclick="refreshInbox(true)">
+                <i class="fas fa-rotate-right" id="refreshIcon"></i> تحديث
+            </button>
+        </div>
+        <div class="inbox" id="emails">
+            <div class="empty">
+                <i class="fas fa-satellite-dish"></i>
+                <p>في انتظار الرسائل</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2><i class="fas fa-clock-rotate-left purple"></i> سجل الاستعادة</h2>
+            <button class="btn-clear" id="clearBtn" onclick="clearHistory()">مسح الكل</button>
+        </div>
+        <div id="historyList"></div>
+    </section>
+</main>
+
+<div id="modal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <div class="left">
+                <div class="modal-subject" id="modalSubject">الموضوع</div>
+                <div class="modal-from" id="modalFrom"></div>
+            </div>
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+'use strict';
+
+const API = 'https://mail123.fr/api/v1';
+const CIRCUMFERENCE = 389.6;
+const LIFETIME = 5 * 60 * 1000;
+const POLL_MS = 5000;
+
+const memoryStore = {};
+let storageAvailable = false;
+(function () {
+    try {
+        const k = '__t__';
+        localStorage.setItem(k, '1');
+        localStorage.removeItem(k);
+        storageAvailable = true;
+    } catch (e) { storageAvailable = false; }
+})();
+
+function storeGet(key) {
+    if (storageAvailable) { try { return localStorage.getItem(key); } catch (e) {} }
+    return memoryStore[key] ?? null;
+}
+function storeSet(key, value) {
+    if (storageAvailable) { try { localStorage.setItem(key, value); return; } catch (e) {} }
+    memoryStore[key] = String(value);
+}
+function storeClear() {
+    if (storageAvailable) { try { localStorage.clear(); } catch (e) {} }
+    for (const k in memoryStore) delete memoryStore[k];
+}
+
+let currentEmail = '';
+let timerId = null;
+let pollId = null;
+let expireAt = 0;
+let creating = false;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function setStatus(msg, isError = false) {
+    const el = $('statusMsg');
+    el.textContent = msg || '';
+    el.className = 'status' + (isError ? ' error' : '');
+}
+
+function saveState(email) {
+    currentEmail = email;
+    storeSet('sm_email', email);
+    $('emailAddr').value = email;
+
+    let hist = getHistory().filter(x => x.email !== email);
+    hist.unshift({
+        email,
+        time: new Date().toLocaleString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    });
+    storeSet('sm_h', JSON.stringify(hist.slice(0, 20)));
+    renderHistory();
+}
+
+function getHistory() {
+    try {
+        const raw = storeGet('sm_h');
+        return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+}
+
+async function createMailbox(retries = 3) {
+    for (let i = 1; i <= retries; i++) {
+        try {
+            const res = await fetch(`${API}/mailbox/new`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+            if (res.status === 429) {
+                await new Promise(r => setTimeout(r, 1500 * i));
+                continue;
+            }
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            if (!data.success || !data.address) throw new Error('invalid response');
+            return data.address;
+        } catch (err) {
+            if (i >= retries) throw err;
+            await new Promise(r => setTimeout(r, 1000 * i));
+        }
+    }
+    throw new Error('max_retries');
+}
+
+async function generateNewEmail(force = false) {
+    if (creating) return;
+    if (!force && currentEmail && expireAt > Date.now()) return;
+
+    creating = true;
+    setStatus('جاري إنشاء عنوان جديد...');
+    $('emailAddr').value = 'جاري التوليد...';
+    $('copyBtn').disabled = true;
+
+    try {
+        const address = await createMailbox(3);
+        saveState(address);
+        expireAt = Date.now() + LIFETIME;
+        storeSet('sm_e', String(expireAt));
+        startTimer();
+        renderEmpty();
+        refreshInbox(true);
+        setStatus('جاهز للاستخدام');
+    } catch (err) {
+        console.error(err);
+        setStatus('تعذر الاتصال — إعادة المحاولة...', true);
+        $('emailAddr').value = 'فشل التوليد';
+        setTimeout(() => {
+            creating = false;
+            generateNewEmail(true);
+        }, 3000);
+        return;
+    } finally {
+        creating = false;
+        $('copyBtn').disabled = false;
+    }
+}
+
+function startTimer() {
+    if (timerId) { clearInterval(timerId); timerId = null; }
+
+    function tick() {
+        const remaining = Math.max(0, Math.round((expireAt - Date.now()) / 1000));
+        const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
+        const secs = String(remaining % 60).padStart(2, '0');
+        $('timerDigits').textContent = `${mins}:${secs}`;
+        $('timerArc').style.strokeDashoffset = CIRCUMFERENCE * (1 - remaining / 300);
+
+        if (remaining <= 0) {
+            clearInterval(timerId);
+            timerId = null;
+            generateNewEmail(true);
+        }
+    }
+    tick();
+    timerId = setInterval(tick, 1000);
+}
+
+async function refreshInbox(manual = false) {
+    if (!currentEmail) return;
+    const icon = $('refreshIcon');
+    if (manual) icon.classList.add('fa-spin');
+
+    try {
+        const res = await fetch(`${API}/mailbox/${encodeURIComponent(currentEmail)}/messages`, {
+            headers: { 'Accept': 'application/json' }
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const messages = data.messages || [];
+
+        if (messages.length === 0) renderEmpty();
+        else renderMessages(messages);
+
+        if (manual) setStatus(`تم التحديث • ${messages.length} رسالة`);
+    } catch (err) {
+        if (manual) setStatus('تعذر التحديث', true);
+    } finally {
+        setTimeout(() => icon.classList.remove('fa-spin'), 500);
+    }
+}
+
+function renderMessages(list) {
+    const badge = $('msgCount');
+    badge.textContent = list.length;
+    badge.classList.add('show');
+
+    $('emails').innerHTML = list.map(m => {
+        const fromRaw = m.from || 'Unknown';
+        const fromName = fromRaw.replace(/<[^>]+>/, '').trim() || fromRaw;
+        const initial = (fromName[0] || '?').toUpperCase();
+        let time = '';
+        try {
+            time = m.date ? new Date(m.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+        } catch (e) {}
+        const otpHint = m.otp_code ? ` 🔐 ${m.otp_code}` : '';
+        // نمرّر الـ id عبر data-attribute لتجنب مشاكل الاقتباسات
+        return `
+        <div class="mail-row" data-msgid="${esc(m.id)}" onclick="openMessageFromEl(this)">
+            <div class="avatar">${esc(initial)}</div>
+            <div class="mail-info">
+                <div class="mail-top">
+                    <span class="mail-time">${esc(time)}</span>
+                    <span class="mail-from">${esc(fromName)}</span>
+                </div>
+                <div class="mail-subject">${esc(m.subject || '(بدون موضوع)')}${otpHint}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function openMessageFromEl(el) {
+    const id = el.getAttribute('data-msgid');
+    if (id) openMessage(id);
+}
+
+function renderEmpty() {
+    $('emails').innerHTML = `
+        <div class="empty">
+            <i class="fas fa-satellite-dish"></i>
+            <p>في انتظار الرسائل</p>
+        </div>`;
+    $('msgCount').classList.remove('show');
+}
+
+/* ── عرض الرسالة (مُصلح) ── */
+async function openMessage(id) {
+    if (!currentEmail || !id) {
+        alert('لا توجد رسالة محددة');
+        return;
+    }
+
+    try {
+        const url = `${API}/mailbox/${encodeURIComponent(currentEmail)}/messages/${encodeURIComponent(id)}`;
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+
+        if (!res.ok) {
+            throw new Error('HTTP ' + res.status);
+        }
+
+        const data = await res.json();
+        const msg = data.message || data;
+
+        $('modalFrom').textContent = 'من: ' + (msg.from || '—');
+        $('modalSubject').textContent = msg.subject || '(بدون موضوع)';
+
+        const parts = [];
+
+        // رمز OTP إن وُجد
+        if (msg.otp_code) {
+            parts.push(`<div class="otp-badge">رمز التحقق: ${esc(msg.otp_code)}</div>`);
+        }
+
+        if (msg.html && String(msg.html).trim()) {
+            // iframe مع allow-same-origin حتى نستطيع تعبئته، بدون scripts
+            parts.push('<iframe id="mailFrame" sandbox="allow-same-origin" title="محتوى الرسالة"></iframe>');
+            $('modalBody').innerHTML = parts.join('');
+
+            const frame = document.getElementById('mailFrame');
+            const cleaned = String(msg.html)
+                .replace(/<script[\s\S]*?<\/script>/gi, '')
+                .replace(/\son\w+\s*=\s*(['"])[\s\S]*?\1/gi, '');
+
+            try {
+                const doc = frame.contentDocument || frame.contentWindow.document;
+                doc.open();
+                doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width,initial-scale=1">
+                    <base target="_blank" rel="noopener">
+                    <style>
+                        html,body{margin:0;padding:12px;font-family:system-ui,-apple-system,sans-serif;font-size:14px;color:#334155;background:#fff;word-break:break-word;line-height:1.5}
+                        img,table{max-width:100%!important;height:auto!important}
+                        a{color:#2563eb}
+                    </style>
+                </head><body></body></html>`);
+                doc.close();
+                doc.body.innerHTML = cleaned;
+
+                setTimeout(() => {
+                    try {
+                        const h = Math.min(Math.max((doc.body.scrollHeight || 280) + 16, 200), 480);
+                        frame.style.height = h + 'px';
+                    } catch (e) {}
+                }, 120);
+            } catch (iframeErr) {
+                // احتياطي: عرض كنص إن فشل الـ iframe
+                console.warn('iframe write failed', iframeErr);
+                $('modalBody').innerHTML = parts.slice(0, -1).join('') +
+                    `<div style="white-space:pre-wrap;text-align:right">${esc(msg.text || stripHtml(msg.html) || 'لا يوجد محتوى نصي')}</div>`;
+            }
+        } else if (msg.text && String(msg.text).trim()) {
+            parts.push(`<pre style="white-space:pre-wrap;font-family:inherit;margin:0;text-align:right">${esc(msg.text)}</pre>`);
+            $('modalBody').innerHTML = parts.join('');
+        } else {
+            parts.push('<p style="text-align:center;color:#94a3b8">لا يوجد محتوى للعرض</p>');
+            $('modalBody').innerHTML = parts.join('');
+        }
+
+        $('modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    } catch (e) {
+        console.error('openMessage error:', e);
+        alert('تعذر تحميل الرسالة. حاول مرة أخرى.');
+    }
+}
+
+function stripHtml(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html || '';
+    return tmp.textContent || tmp.innerText || '';
+}
+
+function closeModal() {
+    $('modal').classList.remove('open');
+    $('modalBody').innerHTML = '';
+    document.body.style.overflow = '';
+}
+
+document.getElementById('modal').addEventListener('click', function (e) {
+    if (e.target === this) closeModal();
+});
+
+function renderHistory() {
+    const hist = getHistory();
+    $('clearBtn').classList.toggle('show', hist.length > 0);
+
+    $('historyList').innerHTML = hist.map(item => {
+        const isActive = item.email === currentEmail;
+        return `
+        <div class="history-item ${isActive ? 'active' : ''}">
+            <div class="history-actions">
+                ${isActive
+                    ? '<span class="active-label">نشط</span>'
+                    : `<button class="btn-restore" onclick="restoreEmail('${esc(item.email)}')">استعادة</button>`
+                }
+                <button class="btn-del" onclick="deleteHistory('${esc(item.email)}')"><i class="fas fa-trash-alt"></i></button>
+            </div>
+            <div class="info">
+                <div class="email">${esc(item.email)}</div>
+                <div class="time"><i class="far fa-clock"></i> ${esc(item.time)}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function deleteHistory(email) {
+    const hist = getHistory().filter(x => x.email !== email);
+    storeSet('sm_h', JSON.stringify(hist));
+    renderHistory();
+}
+
+function restoreEmail(email) {
+    currentEmail = email;
+    storeSet('sm_email', email);
+    $('emailAddr').value = email;
+    expireAt = Date.now() + LIFETIME;
+    storeSet('sm_e', String(expireAt));
+    startTimer();
+    renderEmpty();
+    refreshInbox(true);
+    renderHistory();
+    setStatus('تم استعادة العنوان');
+}
+
+function clearHistory() {
+    if (confirm('مسح سجل الاستعادة؟')) {
+        storeSet('sm_h', '[]');
+        renderHistory();
+    }
+}
+
+async function copyEmail() {
+    const email = $('emailAddr').value;
+    if (!email || email.includes('جاري') || email.includes('فشل')) return;
+
+    try {
+        await navigator.clipboard.writeText(email);
+    } catch {
+        const ta = document.createElement('textarea');
+        ta.value = email;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+    }
+
+    const btn = $('copyBtn');
+    const text = $('copyText');
+    text.textContent = 'تم النسخ!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+        text.textContent = 'نسخ العنوان';
+        btn.classList.remove('copied');
+    }, 2000);
+}
+
+function fullReset() {
+    if (confirm('إعادة ضبط كاملة؟ سيتم حذف كل شيء.')) {
+        storeClear();
+        location.reload();
+    }
+}
+
+window.addEventListener('load', () => {
+    const savedEmail = storeGet('sm_email');
+    const savedExpire = parseInt(storeGet('sm_e') || '0', 10);
+
+    if (savedEmail && savedExpire > Date.now()) {
+        currentEmail = savedEmail;
+        expireAt = savedExpire;
+        $('emailAddr').value = currentEmail;
+        startTimer();
+        renderHistory();
+        refreshInbox(true);
+        setStatus('تم استعادة الجلسة');
+    } else {
+        generateNewEmail(true);
+    }
+
+    pollId = setInterval(() => refreshInbox(false), POLL_MS);
+});
+
+window.addEventListener('beforeunload', () => {
+    if (timerId) clearInterval(timerId);
+    if (pollId) clearInterval(pollId);
+});
+</script>
+</body>
+</html>
